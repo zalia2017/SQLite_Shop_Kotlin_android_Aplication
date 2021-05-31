@@ -3,20 +3,25 @@ package com.example.navigasiapp
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.LinearLayout
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.navigasiapp.api.ApiClient
+import com.example.navigasiapp.api.ApiInterface
+import com.example.navigasiapp.model.CategoryModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import kotlinx.android.synthetic.main.activity_main.*
+import com.google.gson.JsonObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
@@ -26,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     //Initialise the NavigationBottomBar
     private lateinit var bottomNavigation : BottomNavigationView
     lateinit var sharedPref: SharedPreferences
-    var loginStatus: Boolean = false
+    var token: String = ""
 
     var myAdapter : ProductAdapter? = null
 
@@ -46,14 +51,30 @@ class MainActivity : AppCompatActivity() {
 //        arrayItem.add(ProductModel(9,"Jersey Kids Home", "Supporters Edition", R.drawable.kidshome ,600000))
 //        arrayItem.add(ProductModel(10,"Jersey Kids Away", "Supporters Edition", R.drawable.kidsaway ,600000))
 
-        val databaseHandler: DatabaseHandler = DatabaseHandler(this)
-        val productList: ArrayList<ProductModel> = databaseHandler.viewProducts()
-        myAdapter = ProductAdapter(this)
-        myAdapter!!.setData(productList)
+        sharedPref = getSharedPreferences("SharePref", Context.MODE_PRIVATE)
+        token = sharedPref.getString("token", "")!!
+
+        var apiInterface: ApiInterface = ApiClient().getApiClient()!!.create(ApiInterface::class.java)
+        var requestCall: Call<CategoryModel> = apiInterface.getCategories("Bearer "+token)
+        requestCall.enqueue(object: Callback<CategoryModel>{
+            override fun onFailure(call: Call<CategoryModel>, t: Throwable) {
+
+                Log.d("gagal", t.toString())
+            }
+
+            override fun onResponse(call: Call<CategoryModel>, response: Response<CategoryModel>) {
+//                val data: ArrayList<CategoryModel> = ArrayList(response.body().)
+                Log.d("category log", response.body().toString())
+            }
+
+
+        })
+//        myAdapter = ProductAdapter(this)
+//        myAdapter!!.setData(productList)
 
         //product_recycleview berasal dari id recycleview pada activity_main.xml
-        product_recycleview.layoutManager = LinearLayoutManager(this)
-        product_recycleview.adapter = myAdapter
+//        product_recycleview.layoutManager = LinearLayoutManager(this)
+//        product_recycleview.adapter = myAdapter
         //END PRODUCT ITEM
 
         //START BOTTOM NAVIGATION
@@ -104,12 +125,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onStart() {
         super.onStart()
         sharedPref = getSharedPreferences("SharePref", Context.MODE_PRIVATE)
-        loginStatus = sharedPref.getBoolean("loginStatus", false)
+        token = sharedPref.getString("token", "")!!
 
-        if(!loginStatus){
+        if(token == ""){
+            Toast.makeText(this, "token "+token, Toast.LENGTH_SHORT).show()
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }

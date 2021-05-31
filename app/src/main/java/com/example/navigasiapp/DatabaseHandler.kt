@@ -1,14 +1,12 @@
 package com.example.navigasiapp
 
-import android.R
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
-import android.graphics.drawable.Drawable
-import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import com.example.navigasiapp.model.UserModel
 
 
 class DatabaseHandler(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {

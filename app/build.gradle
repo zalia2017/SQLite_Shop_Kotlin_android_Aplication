@@ -43,4 +43,13 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    //noinspection GradleCompatible
+    implementation "com.android.support:support-core-utils:28.0.0"
+
+    //reftrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.7.1'
+
+    //Gson
+    implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 }
